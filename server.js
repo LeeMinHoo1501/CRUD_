@@ -1,27 +1,26 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import pool from './config/db.js';
 
-const express = require('express');
-const pool = require('./config/db');
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+async function testDbConnection() {
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log('✅ Kết nối DB thành công! Thời gian hiện tại:', res.rows[0].now);
+  } catch (error) {
+    console.error('❌ Lỗi kết nối DB:', error.message);
+  }
+}
 
 app.get('/', (req, res) => {
-  res.send('Hello from Express + PostgreSQL API!');
+  res.send('Server is running!');
 });
 
-// Test kết nối DB bằng query đơn giản
-app.get('/test-db', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ currentTime: result.rows[0].now });
-  } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({ error: 'Database error' });
-  }
-});
-
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  await testDbConnection();
 });
