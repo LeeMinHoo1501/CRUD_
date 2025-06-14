@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 async function testDbConnection() {
   try {
     const res = await pool.query('SELECT NOW()');
-    console.log('✅ Kết nối DB thành công! Thời gian hiện tại:', res.rows[0].now);
+    console.log('✅ Kết nối DB thành công!');
   } catch (error) {
     console.error('❌ Lỗi kết nối DB:', error.message);
   }
