@@ -1,26 +1,33 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import pool from './config/db.js';
+const express = require('express');
+const dotenv = require('dotenv');
+const userRoutes = require('./routes/userRoutes');
+const { connectDB } = require('./config/db');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-async function testDbConnection() {
-  try {
-    const res = await pool.query('SELECT NOW()');
-    console.log('✅ Kết nối DB thành công!');
-  } catch (error) {
-    console.error('❌ Lỗi kết nối DB:', error.message);
-  }
-}
+// Middleware để parse JSON
+app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Server is running!');
+// Kết nối cơ sở dữ liệu
+connectDB();
+
+// Middleware log vào route /users
+app.use('/users', (req, res, next) => {
+  next();
 });
 
-app.listen(PORT, async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  await testDbConnection();
+// Mount router người dùng
+app.use('/users', userRoutes);
+
+// Route test
+app.get('/', (req, res) => {
+  res.send('Hello from Express + PostgreSQL API!');
+});
+
+// Khởi động server
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
